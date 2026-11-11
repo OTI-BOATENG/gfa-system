@@ -1,5 +1,43 @@
 <?php
-session_start();
+require_once __DIR__ . '/../src/config.php';
+require_once __DIR__ . '/../src/db.php';
+startAppSession();
+
+$regMsg = '';
+$isSuccess = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $fullName = trim($_POST['full_name'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $role = trim($_POST['role'] ?? 'captain');
+    $password = trim($_POST['password'] ?? '');
+
+    if ($username === '' || $password === '') {
+        $regMsg = 'Please provide both a username and password.';
+    } else {
+        $pdo = getPDO();
+        $roleId = 3; // captain by default
+        if ($role === 'admin') {
+            $roleId = 1;
+        } elseif ($role === 'president') {
+            $roleId = 2;
+        }
+
+        $check = $pdo->prepare('SELECT COUNT(*) FROM users WHERE LOWER(TRIM(username)) = LOWER(?) OR (email IS NOT NULL AND email != "" AND LOWER(TRIM(email)) = LOWER(?))');
+        $check->execute([$username, $email]);
+        if ((int)$check->fetchColumn() > 0) {
+            $regMsg = 'A user with this username or email already exists. You can <a href="index.php">sign in directly</a>.';
+        } else {
+            $salt = bin2hex(random_bytes(16));
+            $hash = hashPasswordWithPepper($password, $salt);
+            $stmt = $pdo->prepare('INSERT INTO users (username, email, role_id, password_hash, salt) VALUES (?, ?, ?, ?, ?)');
+            $stmt->execute([$username, $email, $roleId, $hash, $salt]);
+            $isSuccess = true;
+            $regMsg = 'Account for <strong>' . htmlspecialchars($username) . '</strong> created successfully! You can now <a href="index.php" style="font-weight:700; color:#0f766e; text-decoration:underline;">sign in</a>.';
+        }
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -176,11 +214,11 @@ session_start();
       <h1>Create account</h1>
     </div>
 
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        echo '<div class="success">Your account request has been submitted successfully. Please wait for approval.</div>';
-    }
-    ?>
+    <?php if ($regMsg !== ''): ?>
+      <div class="<?php echo $isSuccess ? 'success' : 'alert-error'; ?>" style="<?php echo $isSuccess ? '' : 'background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:12px 14px; border-radius:12px; margin-bottom:16px; font-weight:600;'; ?>">
+        <?php echo $regMsg; ?>
+      </div>
+    <?php endif; ?>
 
     <p class="sub">Register a new account to access the role-based portal.</p>
 

@@ -134,9 +134,11 @@ function initSqliteDatabase(PDO $pdo): void
 
     // Seed default demo users
     $users = [
-        ['username' => 'admin',     'email' => 'admin@gfa.local',     'role_id' => 1, 'password' => 'AdminPass123!'],
-        ['username' => 'president', 'email' => 'president@gfa.local', 'role_id' => 2, 'password' => 'PresidentPass123!'],
-        ['username' => 'captain',   'email' => 'captain@gfa.local',   'role_id' => 3, 'password' => 'CaptainPass123!'],
+        ['username' => 'admin',         'email' => 'admin@gfa.local',         'role_id' => 1, 'password' => 'AdminPass123!'],
+        ['username' => 'OTI-BOATENG',   'email' => 'nanaquesi0206@gmail.com', 'role_id' => 1, 'password' => 'AdminPass123!'],
+        ['username' => 'nanaquesi',     'email' => 'nanaquesi0206@gmail.com', 'role_id' => 1, 'password' => 'AdminPass123!'],
+        ['username' => 'president',     'email' => 'president@gfa.local',     'role_id' => 2, 'password' => 'PresidentPass123!'],
+        ['username' => 'captain',       'email' => 'captain@gfa.local',       'role_id' => 3, 'password' => 'CaptainPass123!'],
     ];
 
     $insertUser = $pdo->prepare("INSERT INTO users (username, email, role_id, password_hash, salt) VALUES (?, ?, ?, ?, ?)");

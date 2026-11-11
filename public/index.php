@@ -261,6 +261,57 @@ startAppSession();
       text-decoration: underline;
     }
 
+    .alert-error {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      color: #991b1b;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .demo-bar {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+
+    .demo-bar span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .demo-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .demo-chip {
+      appearance: none;
+      border: 1px solid rgba(15, 118, 110, 0.25);
+      background: #f0fdfa;
+      color: var(--primary-dark);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .demo-chip:hover {
+      background: #ccfbf1;
+      border-color: rgba(15, 118, 110, 0.5);
+    }
+
     .auth-links {
       display: flex;
       justify-content: space-between;
@@ -340,10 +391,16 @@ startAppSession();
           <h2>Sign in</h2>
           <p class="muted">Access your role-based dashboard securely.</p>
 
+          <?php if (isset($_GET['error'])): ?>
+            <div class="alert-error">
+              <strong>Invalid credentials.</strong> Please verify your username or password, or click one of the quick demo accounts below.
+            </div>
+          <?php endif; ?>
+
           <form method="post" action="../auth/login.php">
             <div class="field">
-              <label for="username">Username</label>
-              <input id="username" name="username" type="text" placeholder="Enter your username" required>
+              <label for="username">Username or Email</label>
+              <input id="username" name="username" type="text" placeholder="Enter username or email" required>
             </div>
 
             <div class="field">
@@ -354,6 +411,16 @@ startAppSession();
             <button class="btn" type="submit">Login</button>
           </form>
 
+          <div class="demo-bar">
+            <span>Click to fill credentials:</span>
+            <div class="demo-chips">
+              <button type="button" class="demo-chip" onclick="fillLogin('admin', 'AdminPass123!')">Admin</button>
+              <button type="button" class="demo-chip" onclick="fillLogin('nanaquesi0206@gmail.com', 'AdminPass123!')">Nana Qwesi (Admin)</button>
+              <button type="button" class="demo-chip" onclick="fillLogin('president', 'PresidentPass123!')">President</button>
+              <button type="button" class="demo-chip" onclick="fillLogin('captain', 'CaptainPass123!')">Captain</button>
+            </div>
+          </div>
+
           <div class="auth-links">
             <a href="register.php">Create an account</a>
             <a href="forgot_password.php">Forgot password?</a>
@@ -362,5 +429,13 @@ startAppSession();
       </div>
     </section>
   </div>
+
+  <script>
+    function fillLogin(u, p) {
+      document.getElementById('username').value = u;
+      document.getElementById('password').value = p;
+      document.getElementById('username').focus();
+    }
+  </script>
 </body>
 </html>

@@ -7,6 +7,7 @@ $pdo = getPDO();
 
 $users = [
     ['username' => 'admin', 'email' => 'admin@gfa.local', 'role' => 'admin', 'password' => 'AdminPass123!'],
+    ['username' => 'OTI-BOATENG', 'email' => 'nanaquesi0206@gmail.com', 'role' => 'admin', 'password' => 'AdminPass123!'],
     ['username' => 'president', 'email' => 'president@gfa.local', 'role' => 'president', 'password' => 'PresidentPass123!'],
     ['username' => 'captain', 'email' => 'captain@gfa.local', 'role' => 'captain', 'password' => 'CaptainPass123!'],
 ];

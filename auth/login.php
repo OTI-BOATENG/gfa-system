@@ -9,19 +9,26 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $username = trim($_POST['username'] ?? '');
-$password = $_POST['password'] ?? '';
+$password = trim($_POST['password'] ?? '');
+
+if ($username === '' || $password === '') {
+    header('Location: ../public/index.php?error=empty_fields');
+    exit;
+}
 
 $pdo = getPDO();
-$stmt = $pdo->prepare('SELECT u.*, r.name AS role_name FROM users u JOIN roles r ON u.role_id=r.id WHERE username = ?');
-$stmt->execute([$username]);
+$stmt = $pdo->prepare('SELECT u.*, r.name AS role_name FROM users u JOIN roles r ON u.role_id=r.id WHERE LOWER(TRIM(u.username)) = LOWER(?) OR (u.email IS NOT NULL AND u.email != "" AND LOWER(TRIM(u.email)) = LOWER(?))');
+$stmt->execute([$username, $username]);
 $user = $stmt->fetch();
 if (!$user) {
-    die('Invalid credentials');
+    header('Location: ../public/index.php?error=invalid_credentials');
+    exit;
 }
 
 $salt = $user['salt'];
-if (!verifyStoredPassword($password, $salt, $user['password_hash'])) {
-    die('Invalid credentials');
+if (!verifyStoredPassword($password, $salt, $user['password_hash'], (string)($user['role_name'] ?? ''))) {
+    header('Location: ../public/index.php?error=invalid_credentials');
+    exit;
 }
 
 // generate 2FA code (6 digits) and save hashed with expiry
