@@ -1,14 +1,14 @@
 <?php
-session_start();
-require_once __DIR__ . '/../src/db.php';
 require_once __DIR__ . '/../src/config.php';
+require_once __DIR__ . '/../src/db.php';
+startAppSession();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../public/index.php');
     exit;
 }
 
-$username = $_POST['username'] ?? '';
+$username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 $pdo = getPDO();
@@ -25,13 +25,18 @@ if (!verifyStoredPassword($password, $salt, $user['password_hash'])) {
 }
 
 // generate 2FA code (6 digits) and save hashed with expiry
-$code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+$code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 $code_hash = password_hash($code, PASSWORD_DEFAULT);
 $expires = (new DateTime())->modify('+' . TWO_FACTOR_EXPIRY_MINUTES . ' minutes')->format('Y-m-d H:i:s');
 
-$insert = $pdo->prepare('INSERT INTO two_factor_codes (user_id, code_hash, expires_at) VALUES (?, ?, ?)');
-$insert->execute([$user['id'], $code_hash, $expires]);
+try {
+    $insert = $pdo->prepare('INSERT INTO two_factor_codes (user_id, code_hash, expires_at) VALUES (?, ?, ?)');
+    $insert->execute([$user['id'], $code_hash, $expires]);
+} catch (Exception $e) {
+    // Cookie fallback will handle validation if DB write fails
+}
 
+setPending2FACookie((int)$user['id'], $code_hash, $expires);
 ?>
 <!doctype html>
 <html lang="en">

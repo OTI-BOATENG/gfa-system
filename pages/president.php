@@ -1,8 +1,10 @@
 <?php
-session_start();
 require_once __DIR__ . '/../src/db.php';
+startAppSession();
+
 if (!isset($_SESSION['user']) || $_SESSION['user']['role_name'] !== 'president') {
-    die('Access denied');
+    header('Location: ../public/index.php');
+    exit;
 }
 
 $pdo = getPDO();

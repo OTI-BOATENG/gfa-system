@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../src/config.php';
+startAppSession();
 ?>
 <!doctype html>
 <html lang="en">
